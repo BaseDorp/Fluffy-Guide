@@ -5,14 +5,25 @@ using UnityEngine;
 public class LevelManager : MonoBehaviour
 {
     public int catsToSpawn;
+    public int catsHerded;
     public EdgeCollider2D spawnCollider;
     public Sprite[] sprites;
+
+    [SerializeField]
+    Canvas LevelCompleteCanvas;
+
     // Start is called before the first frame update
     void Start()
     {
+        if(LevelCompleteCanvas)
+        {
+            LevelCompleteCanvas.enabled = false;
+        }
         catsToSpawn = 5;
+        catsHerded = 0;
         sprites = Resources.LoadAll<Sprite>("Cats");
         SpawnCatsFromPool();
+        Cat_Ai.CatHerded += OnCatHerded;
     }
 
     // Update is called once per frame
@@ -35,10 +46,47 @@ public class LevelManager : MonoBehaviour
         }
     }
 
+    private void DeactivateCats()
+    {
+        for(int i = 0; i < catsToSpawn; i++)
+        {
+            if(ObjectPool.SharedInstance.pooledObjects[i].activeInHierarchy == true)
+            {
+                ObjectPool.SharedInstance.pooledObjects[i].SetActive(false);
+            }
+        }
+    }
+
     private Vector2 RandomPointInBounds(Bounds bounds)
     {
         return new Vector2(
             Random.Range(bounds.min.x, bounds.max.x),
             Random.Range(bounds.min.y, bounds.max.y));
+    }
+
+    private void LevelComplete()
+    {
+        LevelCompleteCanvas.enabled = true;
+    }
+
+    public void NewLevel()
+    {
+        DeactivateCats();
+        if(catsToSpawn + 1 <= 50)
+        {
+            catsToSpawn++;
+        }
+        catsHerded = 0;
+        SpawnCatsFromPool();
+    }
+
+    public void OnCatHerded()
+    {
+        catsHerded++;
+
+        if(catsHerded == catsToSpawn)
+        {
+            LevelComplete();
+        }
     }
 }
