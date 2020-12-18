@@ -13,6 +13,10 @@ public class Cat_Ai : MonoBehaviour
     float speed;
     [SerializeField]
     float fleeDistance;
+
+    public delegate void CatHerdedEventHandler();
+
+    public static event CatHerdedEventHandler CatHerded;
     
     // Start is called before the first frame update
     void Start()
@@ -47,7 +51,16 @@ public class Cat_Ai : MonoBehaviour
         if (collision.tag == "Cage")
         {
             Debug.Log("caught");
-            //caught = true;
+            caught = true;
+            OnCatHerded();
+        }
+    }
+
+    protected virtual void OnCatHerded()
+    {
+        if(CatHerded != null)
+        {
+            CatHerded();
         }
     }
 }
