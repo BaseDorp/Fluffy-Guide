@@ -4,10 +4,15 @@ using UnityEngine;
 
 public class LevelManager : MonoBehaviour
 {
+
     public int catsToSpawn;
     public int catsHerded;
     public EdgeCollider2D spawnCollider;
     public Sprite[] sprites;
+
+    [SerializeField]
+    float Timer = 30;
+    bool gameOver = false;
 
     [SerializeField]
     Canvas LevelCompleteCanvas;
@@ -33,7 +38,14 @@ public class LevelManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        //if (Timer > 0)
+        //{
+        //    Timer -= Time.deltaTime;
+        //}
+        //else if (Timer <= 0 && gameOver == false)
+        //{
+        //    Debug.Log("Game Over");
+        //}
     }
 
     private void SpawnCatsFromPool()
@@ -45,8 +57,9 @@ public class LevelManager : MonoBehaviour
             var cat = ObjectPool.SharedInstance.GetPooledObject();
 
             cat.SetActive(true);
+            
             cat.transform.position = position;
-            cat.gameObject.GetComponent<SpriteRenderer>().sprite = sprites[i];
+            cat.gameObject.GetComponentInChildren<SpriteRenderer>().sprite = sprites[Random.Range(0,47)];
         }
     }
 
@@ -70,18 +83,19 @@ public class LevelManager : MonoBehaviour
 
     private void LevelComplete()
     {
-        audioSource.Play();
+        //audioSource.Play();
         LevelCompleteCanvas.enabled = true;
-        Invoke("NewLevel", 5);
+        Debug.Log("LevelComplete");
     }
 
     public void NewLevel()
     {
+        Debug.Log("next leveel");
         LevelCompleteCanvas.enabled = false;
         DeactivateCats();
         if(catsToSpawn + 1 <= 50)
         {
-            catsToSpawn++;
+            catsToSpawn+=2;
         }
         catsHerded = 0;
         SpawnCatsFromPool();

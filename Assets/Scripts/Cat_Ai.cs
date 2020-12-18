@@ -7,14 +7,21 @@ public class Cat_Ai : MonoBehaviour
 
     SpriteRenderer catSprite;
     CircleCollider2D circleCollider;
+    AudioSource audioSource;
+    Transform child;
 
-    bool caught = false;
+    bool flipped = false;
+    public bool caught = false;
     float lastFramePos = 0;
     
     [SerializeField]
     float speed;
     [SerializeField]
     float fleeDistance;
+    [SerializeField]
+    float bounceSpeed;
+    [SerializeField]
+    float bounceHeight;
 
     public delegate void CatHerdedEventHandler();
 
@@ -23,8 +30,10 @@ public class Cat_Ai : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        this.catSprite = GetComponent<SpriteRenderer>();
+        this.catSprite = GetComponentInChildren<SpriteRenderer>();
         this.circleCollider = GetComponent<CircleCollider2D>();
+        audioSource = GetComponent<AudioSource>();
+        this.child = this.gameObject.transform.GetChild(0);
         circleCollider.enabled = true;
     }
 
@@ -49,17 +58,22 @@ public class Cat_Ai : MonoBehaviour
             targetPos.z = 0;
 
             
-            if (lastFramePos < this.transform.position.x)
+            if (mousePos.x < this.transform.position.x && flipped == false)
             {
-                catSprite.flipX = true;
+                //this.gameObject.GetComponentInChildren<SpriteRenderer>().flipX = true;
+                transform.localScale = new Vector3(transform.localScale.x * -1, transform.localScale.y, transform.localScale.z);
+                flipped = true;
             }
-            else if (lastFramePos > this.transform.position.x)
+            else if (mousePos.x > this.transform.position.x && flipped)
             {
-                catSprite.flipX = false;
+                //facing left
+                transform.localScale = new Vector3(transform.localScale.x * -1, transform.localScale.y, transform.localScale.z);
+                flipped = false;
             }
 
             transform.position = Vector3.MoveTowards(transform.position, targetPos, speed * Time.deltaTime);
-            lastFramePos = this.transform.position.y;
+            //child.transform.localPosition = new Vector3(transform.position.x, (Mathf.Sin(Time.time * bounceSpeed) * bounceHeight) + transform.position.y, 0);
+            lastFramePos = this.transform.position.x;
         }
 
         if (collision.tag == "Cage")
@@ -68,6 +82,7 @@ public class Cat_Ai : MonoBehaviour
             circleCollider.enabled = false;
             caught = true;
             OnCatHerded();
+            audioSource.Play();
         }
     }
 
@@ -77,5 +92,10 @@ public class Cat_Ai : MonoBehaviour
         {
             CatHerded();
         }
+    }
+
+    private void OnEnable()
+    {
+        caught = false;
     }
 }
