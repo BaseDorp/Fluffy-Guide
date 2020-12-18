@@ -12,9 +12,13 @@ public class LevelManager : MonoBehaviour
     [SerializeField]
     Canvas LevelCompleteCanvas;
 
+    AudioSource audioSource;
+
     // Start is called before the first frame update
     void Start()
     {
+        audioSource = GetComponent<AudioSource>();
+
         if(LevelCompleteCanvas)
         {
             LevelCompleteCanvas.enabled = false;
@@ -66,11 +70,14 @@ public class LevelManager : MonoBehaviour
 
     private void LevelComplete()
     {
+        audioSource.Play();
         LevelCompleteCanvas.enabled = true;
+        Invoke("NewLevel", 5);
     }
 
     public void NewLevel()
     {
+        LevelCompleteCanvas.enabled = false;
         DeactivateCats();
         if(catsToSpawn + 1 <= 50)
         {
